@@ -118,18 +118,14 @@ linkItems.forEach((link, index) => {
 
 // handler function to update the navbar on scroll
 const initNavUpdate = () => {
-	let lastElTop = -20;
-	const windowWidth = window.innerWidth;
 	sectionEle.forEach((section) => {
-		inViewPort = isSectionInViewPort(section);
-		
-		if (inViewPort) {
+		let isInViewPort = isSectionInViewPort(section);
+		if (isInViewPort) {
 			const id = section.getAttribute('id');
 			// remove initial active nav
 			document
 				.querySelector(`a[href='#${currentActive}']`)
 				.classList.remove('active');
-
 			// add new active nav
 			document.querySelector(`a[href='#${id}']`).classList.add('active');
 			// udate current active
