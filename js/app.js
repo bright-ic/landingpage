@@ -82,14 +82,25 @@ const scrollToSection = (targetID) => {
 const isSectionInViewPort = (element) => {
 	const bounding = element.getBoundingClientRect();
 	let inViewPort = (
-		(bounding.top >= 0 || bounding.top <= 0) &&
+		bounding.top >= 0 &&
 		bounding.left >= 0 &&
 		bounding.bottom <=
 			(window.innerHeight || document.documentElement.clientHeight) &&
 		bounding.right <=
 			(window.innerWidth || document.documentElement.clientWidth)
 	);
-	return inViewPort;
+	return {inViewPort}
+};
+
+// util to check element in the viewport on mobile
+const isSectionInViewPort_mobile = (element, lastElTop) => {
+	const bounding = element.getBoundingClientRect();
+	let inViewPort = false;
+	if(lastElTop < 0 && (bounding.top > 0 && bounding.top < 200) && bounding.bottom >= (window.innerHeight || document.documentElement.clientHeight) && bounding.right <=
+			(window.innerWidth || document.documentElement.clientWidth)) {
+		inViewPort = true;
+	}
+	return {lastElTop: bounding.top, inViewPort }
 };
 /**
  * End Helper Functions
@@ -118,16 +129,35 @@ linkItems.forEach((link, index) => {
 
 // handler function to update the navbar on scroll
 const initNavUpdate = () => {
+	let lastElTop = -20;
+	const windowWidth = window.innerWidth;
 	sectionEle.forEach((section) => {
-		let isInViewPort = isSectionInViewPort(section);
-		if (isInViewPort) {
+		let sect = {};
+		if(windowWidth < 600) {
+			sect = isSectionInViewPort_mobile(section, lastElTop);
+			lastElTop = sect.lastElTop;
+		}
+		else {
+			sect = isSectionInViewPort(section);
+		}
+		
+		if (sect.inViewPort) {
+		//	console.log("section in view is:", section.getAttribute('id'));
 			const id = section.getAttribute('id');
+			if(currentActive === id) { 
+				return;
+			}
 			// remove initial active nav
 			document
 				.querySelector(`a[href='#${currentActive}']`)
 				.classList.remove('active');
 			// add new active nav
 			document.querySelector(`a[href='#${id}']`).classList.add('active');
+			// remove the active class from the previous active section
+			document.getElementById(currentActive).classList.remove('active');
+
+			// add the active class to the current section
+			document.getElementById(id).classList.add('active');
 			// udate current active
 			currentActive = id;
 		}
